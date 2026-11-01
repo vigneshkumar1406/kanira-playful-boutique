@@ -270,9 +270,25 @@ drop trigger if exists reviews_set_updated_at on public.product_reviews;
 create trigger reviews_set_updated_at before update on public.product_reviews for each row execute function public.set_updated_at();
 
 create or replace function public.is_admin()
-returns boolean language sql stable security definer set search_path = public as $$
+returns boolean language sql stable security definer set search_path = public as $
   select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
-$$;
+$;
+
+create or replace function public.guard_profile_privileges()
+returns trigger language plpgsql security definer set search_path = public as $
+begin
+  if auth.uid() is not null and not public.is_admin()
+     and (new.role is distinct from old.role
+          or new.wholesale_approved is distinct from old.wholesale_approved) then
+    raise exception 'Only a KANIRA administrator can change account privileges';
+  end if;
+  return new;
+end;
+$;
+
+drop trigger if exists profiles_guard_privileges on public.profiles;
+create trigger profiles_guard_privileges before update on public.profiles
+for each row execute function public.guard_profile_privileges();
 
 alter table public.profiles enable row level security;
 alter table public.addresses enable row level security;
