@@ -57,7 +57,7 @@ function Floaters() {
 }
 
 function Swatch({ product, className = "" }: { product: Product; className?: string }) {
-  const [a, b] = [swatchFor(product.skus[0]), swatchFor(product.skus[1] ?? product.skus[0])];
+  const [a, b] = [swatchFor(product.skus[0]!), swatchFor(product.skus[1] ?? product.skus[0]!)];
   return (
     <div
       className={`relative flex items-end overflow-hidden ${className}`}
@@ -176,7 +176,7 @@ function Hero() {
               className="absolute w-[58%] overflow-hidden rounded-3xl border-4 border-card shadow-soft"
               style={{ left: `${i * 21}%`, top: `${[8, 0, 22][i]}%`, zIndex: i === 1 ? 3 : 1 }}
               initial={{ clipPath: "inset(100% 0 0 0)", rotate: 0 }}
-              animate={{ clipPath: "inset(0% 0 0 0)", rotate: [-5, 2, 6][i] }}
+              animate={{ clipPath: "inset(0% 0 0 0)", rotate: [-5, 2, 6][i] ?? 0 }}
               transition={{ duration: 1.1, delay: 0.3 + i * 0.2, ease }}
             >
               <Swatch product={p} className="aspect-[3/4]" />
