@@ -368,3 +368,49 @@ values
   ('currency', '"INR"'::jsonb, true),
   ('whatsapp_number', '"919944177755"'::jsonb, true)
 on conflict (key) do nothing;
+
+
+-- Storage buckets: catalogue images are public; return evidence is private.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values
+  ('product-images', 'product-images', true, 5242880, array['image/jpeg','image/png','image/webp']),
+  ('return-evidence', 'return-evidence', false, 8388608, array['image/jpeg','image/png','image/webp'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+create policy "product_images_public_read"
+on storage.objects for select
+using (bucket_id = 'product-images');
+
+create policy "product_images_admin_insert"
+on storage.objects for insert to authenticated
+with check (bucket_id = 'product-images' and public.is_admin());
+
+create policy "product_images_admin_update"
+on storage.objects for update to authenticated
+using (bucket_id = 'product-images' and public.is_admin())
+with check (bucket_id = 'product-images' and public.is_admin());
+
+create policy "product_images_admin_delete"
+on storage.objects for delete to authenticated
+using (bucket_id = 'product-images' and public.is_admin());
+
+create policy "return_evidence_owner_upload"
+on storage.objects for insert to authenticated
+with check (
+  bucket_id = 'return-evidence'
+  and (storage.foldername(name))[1] = auth.uid()::text
+);
+
+create policy "return_evidence_owner_read_or_admin"
+on storage.objects for select to authenticated
+using (
+  bucket_id = 'return-evidence'
+  and ((storage.foldername(name))[1] = auth.uid()::text or public.is_admin())
+);
+
+create policy "return_evidence_admin_delete"
+on storage.objects for delete to authenticated
+using (bucket_id = 'return-evidence' and public.is_admin());
