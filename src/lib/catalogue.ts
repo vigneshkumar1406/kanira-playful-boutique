@@ -43,6 +43,7 @@ export const PRODUCTS: Product[] = [
   p("limited", "mrp", "Kiss Tiered Dress", ["KNR-FRK-001-YLW", "KNR-FRK-001-RED"], 899, ["9-12M", "12-18M", "18-24M", "2-3Y"]),
   p("limited", "mrp", "Rosie & Bonnie Rompers", ["KNR-RMP-003-PNK", "KNR-RMP-003-ORG"], 599, ["0-3M", "3-6M", "6-9M", "9-12M"]),
   p("limited", "mrp", "Daisy & Kiwi Jumpsuits", ["KNR-JMP-002-YLW", "KNR-JMP-002-GRN"], 499, ["6-9M", "9-12M", "12-18M", "18-24M"]),
+  p("limited", "mrp", "Reversible Jabla", ["KNR-JBL-004"], 199, ["NB", "0-3M", "3-6M", "6-9M", "9-12M"]),
 
   p("lollipop", "wholesale", "Dottie style", ["KNR-CRD-006-BRN", "KNR-CRD-006-PLM"], 475, ["12-18M", "18-24M", "2-3Y"]),
   p("lollipop", "wholesale", "Red / Yellow Tiered Dress", ["KNR-FRK-001-RED", "KNR-FRK-001-YLW"], 549, ["9-12M", "12-18M", "18-24M", "2-3Y"]),
