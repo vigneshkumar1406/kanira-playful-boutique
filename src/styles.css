@@ -118,3 +118,43 @@
 
 @utility bg-hero { background: var(--gradient-hero); }
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
+
+
+/* KANIRA motion polish: accessible navigation and calm interaction feedback. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  transform: translateY(-160%);
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  transition: transform 180ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 55%, white);
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
