@@ -5,7 +5,7 @@ This project must use its own Supabase project. Do not reuse Honey Badger's proj
 ## What is included
 
 - `migrations/202611020001_initial_kanira_schema.sql`: first commerce schema for profiles, addresses, catalogue, variants, product images, orders, immutable order-line snapshots, payment transactions, inventory movements, returns, reviews and store settings.
-- Row Level Security is enabled for every application table.
+- Retail and wholesale prices live in a separate table. Retail prices are readable for published products; wholesale prices are limited to admins and explicitly approved wholesale accounts. Customers cannot approve themselves.\n- Row Level Security is enabled for every application table.
 - Public visitors can read only active categories and published catalogue content.
 - Customers can read their own profile, addresses and orders; they cannot write order totals or payment records from the browser.
 - Admin access is role-based. Bootstrap the first admin manually after creating that user's account.
