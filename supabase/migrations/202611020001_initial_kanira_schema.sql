@@ -272,12 +272,12 @@ drop trigger if exists reviews_set_updated_at on public.product_reviews;
 create trigger reviews_set_updated_at before update on public.product_reviews for each row execute function public.set_updated_at();
 
 create or replace function public.is_admin()
-returns boolean language sql stable security definer set search_path = public as $
+returns boolean language sql stable security definer set search_path = public as $fn$
   select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
-$;
+$fn$;
 
 create or replace function public.guard_profile_privileges()
-returns trigger language plpgsql security definer set search_path = public as $
+returns trigger language plpgsql security definer set search_path = public as $fn$
 begin
   if auth.uid() is not null and not public.is_admin()
      and (new.role is distinct from old.role
@@ -286,7 +286,7 @@ begin
   end if;
   return new;
 end;
-$;
+$fn$;
 
 drop trigger if exists profiles_guard_privileges on public.profiles;
 create trigger profiles_guard_privileges before update on public.profiles
