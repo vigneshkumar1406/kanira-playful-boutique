@@ -149,7 +149,7 @@ function DetailSheet({ product, mode, onClose }: { product: Product; mode: Mode;
 }
 
 function Hero() {
-  const heroItems = [PRODUCTS[0], PRODUCTS[9], PRODUCTS[16]];
+  const heroItems = [PRODUCTS[0]!, PRODUCTS[9]!, PRODUCTS[16]!];
   return (
     <section className="relative overflow-hidden bg-hero">
       <Floaters />
@@ -292,7 +292,7 @@ function AnimationDemo() {
         ))}
         <div className="flex aspect-square flex-col items-center justify-center gap-4 rounded-3xl border bg-card p-6">
           <motion.div key={key} initial={{ clipPath: "inset(100% 0 0 0)" }} animate={{ clipPath: "inset(0% 0 0 0)" }} transition={{ duration: 1, ease }} className="w-2/3">
-            <Swatch product={PRODUCTS[10]} className="aspect-[3/4] rounded-2xl" />
+            <Swatch product={PRODUCTS[10]!} className="aspect-[3/4] rounded-2xl" />
           </motion.div>
           <span className="text-sm text-muted-foreground">Image reveal</span>
         </div>
