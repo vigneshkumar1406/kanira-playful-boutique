@@ -57,3 +57,21 @@
 .contact-card>p:not(.eyebrow){font-size:13px;line-height:1.8;color:#75695f;margin-bottom:1.3rem}
 .contact-detail{display:flex;align-items:center;gap:.7rem;margin-top:1.2rem;font-size:12px;color:#75695f}
 @media(max-width:700px){.page-intro{padding:3.5rem 1.2rem 2.5rem}.page-section{padding:1.5rem 1.1rem 3rem}.story-page-grid,.wholesale-page-hero,.help-layout{grid-template-columns:1fr;gap:1.8rem}.story-page-art{min-height:230px}.values-grid{grid-template-columns:1fr}.values-grid article{padding:1.4rem}.page-cta{align-items:flex-start;flex-direction:column;padding:2.8rem 1.2rem}.wholesale-page-mark{min-height:190px}}
+
+/* KANIRA brand-story sections */
+.difference-intro{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;padding:5.5rem max(7vw,2rem);background:#fffdf9}
+.difference-intro-copy h2,.parent-questions h2{font-family:"Playfair Display",serif;font-size:clamp(2.5rem,4.8vw,4.4rem);line-height:1.02;margin:1rem 0}
+.difference-intro-copy h2 em{color:#98755e;font-weight:400}
+.difference-intro-copy>p:not(.eyebrow),.parent-questions>div:first-child>p:not(.eyebrow){max-width:520px;color:#75695f;font-size:14px;line-height:1.9}
+.difference-pillars{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.difference-pillars article{padding:1.35rem;border:1px solid #e9ded3;border-radius:18px;background:#fbf7f1;display:grid;gap:.55rem}
+.difference-pillars article span,.parent-question-cards span{font-size:10px;letter-spacing:.16em;color:#a07b62}
+.difference-pillars article b{font-family:"Playfair Display",serif;font-size:1.25rem;font-weight:500}
+.difference-pillars article small{font-size:11px;line-height:1.65;color:#817469}
+.parent-questions{display:grid;grid-template-columns:.9fr 1.1fr;gap:3rem;padding:5rem max(7vw,2rem);background:#f0e8de}
+.parent-question-cards{display:grid;gap:.7rem}
+.parent-question-cards a{display:grid;grid-template-columns:36px 1fr;gap:.3rem .8rem;padding:1rem 1.2rem;border:1px solid #e0d5c9;border-radius:14px;background:#fffdf9}
+.parent-question-cards a span{grid-row:span 2}
+.parent-question-cards b{font-family:"Playfair Display",serif;font-size:1.15rem;font-weight:500}
+.parent-question-cards small{font-size:11px;color:#817469}
+@media(max-width:700px){.difference-intro,.parent-questions{grid-template-columns:1fr;gap:2rem;padding:3.5rem 1.2rem}.difference-pillars{gap:.55rem}.difference-pillars article{padding:1rem}.difference-pillars article b{font-size:1.05rem}}
