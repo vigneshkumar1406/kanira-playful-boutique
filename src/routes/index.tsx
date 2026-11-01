@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
 const fadeUp = { initial: { opacity: 0, y: 22 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-50px" }, transition: { duration: 0.65 } };
 
 function Logo({ light = false }: { light?: boolean }) {
-  return <a href="#" aria-label="KANIRA home" className={`kanira-logo ${light ? "text-[#f8f4ed]" : "text-[#302a24]"}`}><span className="logo-mark"><Leaf size={20} /></span><span>KANIRA</span><small>Tiny Outfits. Big Stories.</small></a>;
+  return <a href="/" aria-label="KANIRA home" className={`kanira-logo ${light ? "text-[#f8f4ed]" : "text-[#302a24]"}`}><img src="/kanira-mascot.svg" alt="" className="logo-mascot" /><span>KANIRA</span><small>Tiny Outfits. Big Stories.</small></a>;
 }
 
 function ProductVisual({ product, className = "" }: { product: Product; className?: string }) {
