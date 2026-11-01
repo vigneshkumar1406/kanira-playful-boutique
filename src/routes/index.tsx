@@ -59,7 +59,6 @@ function HomePage() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const visibleProducts = PRODUCTS.filter(p => p.category === category && (search.trim() === "" || [p.name, ...p.skus, ...p.sizes].join(" ").toLowerCase().includes(search.toLowerCase())));
-  const newArrivals = PRODUCTS.slice(0, 5);
 
   return <MotionConfig reducedMotion="user"><div className="min-h-screen bg-[#fbf7f1] text-[#302a24]">
     <a href="#main-content" className="skip-link">Skip to content</a>
