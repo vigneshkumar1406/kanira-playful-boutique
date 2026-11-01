@@ -1,24 +1,39 @@
-# Kanira Playful Boutique
+# KANIRA — Tiny Outfits. Big Stories.
 
-Create an interactive, responsive ANIMATION PROTOTYPE for KANIRA kidswear using the four attached PDFs as the only source for product photos and details. Visual direction: playful premium, balanced animation. Use warm peach, cream and brown, but a clean contemporary boutique-fashion layout. Create an animated hero with subtle floating hearts/flowers and product image reveal; scroll-triggered collection reveals; gentle product card hover/tap animations; category tabs for Girls, Boys, Lollipop and Limited Edition; and a clear Retail vs Wholesale split. Use real product photography and exact names, SKUs, sizes and prices from the PDFs; do not use the CSV, stock imagery, or invent missing details. Wholesale prices must never be shown as retail prices; where retail prices are absent show Enquire/View details. Include WhatsApp wholesale enquiry to +91 9944177755 with a prefilled message but do not send automatically. Add a small animation demo section. Use React, TypeScript, Tailwind and Motion/Framer Motion if available, with reduced-motion support. Prototype only: no database, auth, checkout or payment integration. Build a polished, working responsive prototype.
+A premium kidswear storefront for KANIRA, with separate retail and wholesale journeys.
 
-This project was built with [Lovable](https://lovable.dev).
+## Current project status
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/716e771c-eb22-472f-8c31-bb7088fb1823).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- Hybrid editorial storefront prototype is on the `design/kanira-hybrid-homepage-v1` branch.
+- The current catalogue contains transcribed product metadata and price-kind safeguards. Real product photography has not yet been integrated.
+- Supabase schema foundation is in `supabase/migrations`.
+- This is not yet a live checkout system. Cart persistence, customer accounts, server-side checkout, Razorpay verification, shipping, order management and admin UI still require implementation and testing.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Requirements: Node.js compatible with the Vite toolchain and Bun (the repository includes `bun.lock`).
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install
+bun run dev
 ```
+
+Available scripts: `bun run build`, `bun run lint`, `bun run test`.
+
+## Backend setup
+
+Read [Supabase setup](supabase/README.md) before creating a backend. KANIRA must have a dedicated Supabase project and separate payment credentials. Do not reuse Honey Badger data or secrets.
+
+Copy `.env.example` to `.env.local` only after creating the KANIRA Supabase project. Keep server-only keys out of browser variables and out of Git.
+
+## Business rules
+
+- Retail MRP and wholesale prices are separate price types. Never display a wholesale price as retail MRP.
+- Missing retail price means enquiry, not an invented price.
+- Do not invent product images, descriptions, fabric claims, sizes, stock, MOQ or delivery promises.
+- Wholesale MOQ and pack rules must be confirmed by the business before checkout is enabled.
+- WhatsApp enquiries open a prefilled draft; the customer must review and send it.
+
+## Safety before launch
+
+No production deployment, live payment processing or customer-data import should happen until the KANIRA owner has supplied the required credentials and confirmed pricing, stock, shipping, taxes, returns and wholesale terms.
