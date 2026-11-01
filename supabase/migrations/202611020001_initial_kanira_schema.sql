@@ -281,7 +281,8 @@ alter table public.store_settings enable row level security;
 
 create policy "profiles_read_own_or_admin" on public.profiles for select to authenticated using (id = auth.uid() or public.is_admin());
 create policy "profiles_insert_own_customer" on public.profiles for insert to authenticated with check (id = auth.uid() and role = 'customer');
-create policy "profiles_update_own_safe_fields" on public.profiles for update to authenticated using (id = auth.uid() or public.is_admin()) with check ((id = auth.uid() and role = (select p.role from public.profiles p where p.id = auth.uid())) or public.is_admin());
+create policy "profiles_customer_update_own" on public.profiles for update to authenticated using (id = auth.uid() and role = 'customer') with check (id = auth.uid() and role = 'customer');
+create policy "profiles_admin_manage" on public.profiles for update to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy "addresses_owner_all" on public.addresses for all to authenticated using (user_id = auth.uid() or public.is_admin()) with check (user_id = auth.uid() or public.is_admin());
 
