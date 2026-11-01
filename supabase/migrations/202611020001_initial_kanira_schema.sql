@@ -36,6 +36,7 @@ create table if not exists public.profiles (
   full_name text,
   phone text,
   role public.user_role not null default 'customer',
+  wholesale_approved boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -79,17 +80,25 @@ create table if not exists public.products (
   care_instructions text,
   is_published boolean not null default false,
   is_featured boolean not null default false,
-  retail_price_paise integer,
-  wholesale_price_paise integer,
   wholesale_moq integer,
   sort_order integer not null default 0,
   seo_title text,
   seo_description text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint products_retail_price_nonnegative check (retail_price_paise is null or retail_price_paise >= 0),
-  constraint products_wholesale_price_nonnegative check (wholesale_price_paise is null or wholesale_price_paise >= 0),
   constraint products_wholesale_moq_positive check (wholesale_moq is null or wholesale_moq > 0)
+);
+
+create table if not exists public.product_prices (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products(id) on delete cascade,
+  channel public.sales_channel not null,
+  price_paise integer not null,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(product_id, channel),
+  constraint product_price_nonnegative check (price_paise >= 0)
 );
 
 create table if not exists public.product_variants (
@@ -249,7 +258,7 @@ drop trigger if exists categories_set_updated_at on public.categories;
 create trigger categories_set_updated_at before update on public.categories for each row execute function public.set_updated_at();
 drop trigger if exists products_set_updated_at on public.products;
 create trigger products_set_updated_at before update on public.products for each row execute function public.set_updated_at();
-drop trigger if exists variants_set_updated_at on public.product_variants;
+drop trigger if exists product_prices_set_updated_at on public.product_prices;\ncreate trigger product_prices_set_updated_at before update on public.product_prices for each row execute function public.set_updated_at();\ndrop trigger if exists variants_set_updated_at on public.product_variants;
 create trigger variants_set_updated_at before update on public.product_variants for each row execute function public.set_updated_at();
 drop trigger if exists orders_set_updated_at on public.orders;
 create trigger orders_set_updated_at before update on public.orders for each row execute function public.set_updated_at();
@@ -269,6 +278,7 @@ alter table public.profiles enable row level security;
 alter table public.addresses enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
+alter table public.product_prices enable row level security;
 alter table public.product_variants enable row level security;
 alter table public.product_images enable row level security;
 alter table public.orders enable row level security;
@@ -291,6 +301,17 @@ create policy "categories_admin_manage" on public.categories for all to authenti
 
 create policy "products_public_published" on public.products for select using (is_published = true or public.is_admin());
 create policy "products_admin_manage" on public.products for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create policy "product_prices_channel_access" on public.product_prices for select using (
+  is_active = true
+  and exists (select 1 from public.products p where p.id = product_id and p.is_published = true)
+  and (
+    channel = 'retail'
+    or public.is_admin()
+    or exists (select 1 from public.profiles pr where pr.id = auth.uid() and pr.wholesale_approved = true)
+  )
+);
+create policy "product_prices_admin_manage" on public.product_prices for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy "variants_public_active_for_published_products" on public.product_variants for select using (
   is_active = true and exists (select 1 from public.products p where p.id = product_id and p.is_published = true)
