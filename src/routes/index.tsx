@@ -153,36 +153,39 @@ function Hero() {
   return (
     <section className="luxury-hero relative isolate overflow-hidden bg-hero">
       <Floaters />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 md:grid-cols-2 md:pt-16">
-        <div>
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            Kidswear · 0M – 5Y
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 md:grid-cols-[0.92fr_1.08fr] md:gap-14 md:px-10 md:py-20">
+        <div className="relative z-10 max-w-xl">
+          <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="mb-5 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground sm:text-xs">
+            <span className="h-px w-8 bg-accent-foreground/60" /> KANIRA · Kidswear from Tiruppur
           </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease }} className="font-display text-5xl leading-[1.05] md:text-7xl">
-            Little blooms,<br /><em className="text-accent-foreground/80">softly made.</em>
+          <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.08, ease }} className="font-display text-[clamp(3.1rem,7vw,5.8rem)] leading-[0.98] tracking-[-0.045em]">
+            Little blooms,<br /><em className="font-normal text-accent-foreground/80">beautifully</em><br />worn.
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.8 }} className="mt-6 max-w-md text-muted-foreground">
-            Muslin, hakoba and tiered frocks, sets and rompers across Girls, Boys, Lollipop and Limited Edition.
+          <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, duration: 0.65 }} className="mt-7 max-w-md text-sm leading-7 text-muted-foreground sm:text-base">
+            Thoughtful little styles for everyday moments. Discover Girls, Boys, Lollipop and Limited Edition collections.
           </motion.p>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="mt-8 flex flex-wrap gap-3">
-            <a href="#collections" className="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90">Explore collections</a>
-            <a href="#buy" className="rounded-full border border-primary px-6 py-3 text-sm font-medium transition hover:bg-primary hover:text-primary-foreground">Retail or wholesale?</a>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }} className="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#collections" className="inline-flex min-h-12 items-center rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-soft transition duration-300 hover:-translate-y-0.5 hover:opacity-90">Explore the collection <span className="ml-3">↗</span></a>
+            <a href="#buy" className="inline-flex min-h-12 items-center rounded-full border border-primary/35 px-6 text-sm font-medium transition duration-300 hover:border-primary hover:bg-card/60">Retail & wholesale</a>
           </motion.div>
+          <p className="mt-8 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Curated with love · Tiny Outfits. Big Stories.</p>
         </div>
-        <div className="relative h-[480px]">
-          {heroItems.map((p, i) => (
-            <motion.div
-              key={p.id}
-              className="absolute w-[58%] overflow-hidden rounded-3xl border-4 border-card shadow-soft"
-              style={{ left: `${i * 21}%`, top: `${[8, 0, 22][i]}%`, zIndex: i === 1 ? 3 : 1 }}
-              initial={{ clipPath: "inset(100% 0 0 0)", rotate: 0 }}
-              animate={{ clipPath: "inset(0% 0 0 0)", rotate: [-5, 2, 6][i] ?? 0 }}
-              transition={{ duration: 1.1, delay: 0.3 + i * 0.2, ease }}
-            >
-              <Swatch product={p} className="aspect-[3/4]" />
-              <div className="bg-card px-3 py-2 text-xs font-medium">{p.name}</div>
+        <div className="luxury-editorial relative mx-auto grid w-full max-w-2xl grid-cols-[1fr_0.82fr] items-center gap-3 sm:gap-5">
+          <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.18, ease }} className="relative mt-10 overflow-hidden rounded-[48%_48%_1.5rem_1.5rem] border border-white/70 bg-card/75 p-2 shadow-soft sm:mt-16">
+            <Swatch product={heroItems[0]} className="aspect-[4/5] rounded-[48%_48%_1rem_1rem]" />
+            <div className="px-3 py-4 sm:px-5"><p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">The collection</p><p className="mt-1 font-display text-base sm:text-xl">{heroItems[0].name}</p></div>
+          </motion.div>
+          <div className="space-y-3 sm:space-y-5">
+            <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.32, ease }} className="overflow-hidden rounded-[1.5rem] border border-white/70 bg-card/75 p-2 shadow-soft">
+              <Swatch product={heroItems[1]} className="aspect-[5/4] rounded-[1.1rem]" />
+              <p className="px-2 py-3 font-display text-sm sm:text-base">{heroItems[1].name}</p>
             </motion.div>
-          ))}
+            <motion.div initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.46, ease }} className="overflow-hidden rounded-[1.5rem] border border-white/70 bg-card/75 p-2 shadow-soft">
+              <Swatch product={heroItems[2]} className="aspect-[5/4] rounded-[1.1rem]" />
+              <p className="px-2 py-3 font-display text-sm sm:text-base">{heroItems[2].name}</p>
+            </motion.div>
+          </div>
+          <span className="pointer-events-none absolute -right-3 -top-5 font-display text-5xl text-accent/60 sm:-right-7 sm:top-0 sm:text-7xl">✳</span>
         </div>
       </div>
     </section>
@@ -280,6 +283,7 @@ function Index() {
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen font-sans">
         <a href="#main-content" className="skip-link">Skip to content</a>
+        <div className="bg-primary px-4 py-2 text-center text-[10px] font-medium tracking-[0.16em] text-primary-foreground sm:text-xs">KANIRA · CURATED WITH LOVE · RETAIL & WHOLESALE ENQUIRIES</div>
         <motion.header
           className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl"
           animate={{ boxShadow: scrolled ? "0 10px 30px -24px rgba(75, 48, 35, 0.55)" : "0 0 0 rgba(75, 48, 35, 0)" }}
@@ -289,10 +293,11 @@ function Index() {
             <a href="#" aria-label="KANIRA home" className="group rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
               <motion.span whileHover={reduce ? undefined : { letterSpacing: "0.26em" }} transition={{ duration: 0.25 }} className="inline-block font-display text-2xl tracking-[0.2em]">KANIRA</motion.span>
             </a>
-            <nav aria-label="Main navigation" className="hidden gap-7 text-sm md:flex">
+            <nav aria-label="Main navigation" className="flex gap-3 text-[11px] sm:gap-5 sm:text-xs md:gap-7 md:text-sm">
               {[
                 { href: "#collections", label: "Collections" },
                 { href: "#buy", label: "Retail & Wholesale" },
+                { href: "#story", label: "Our story" },
               ].map((item) => (
                 <a key={item.href} href={item.href} className="nav-link group relative py-2 text-foreground/80 transition-colors hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
                   {item.label}
@@ -309,9 +314,25 @@ function Index() {
           <Hero />
           <Collections mode={mode} setMode={setMode} />
           <BuySplit setMode={setMode} />
+          <section id="story" className="relative overflow-hidden border-t border-border/70 bg-card/55">
+            <div className="mx-auto grid max-w-7xl gap-8 px-6 py-16 sm:px-8 md:grid-cols-[0.8fr_1.2fr] md:items-center md:gap-16 md:py-24">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">A little about us</p>
+                <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">Small details.<br /><em className="font-normal text-accent-foreground/80">Big little stories.</em></h2>
+              </div>
+              <div className="max-w-2xl">
+                <p className="text-base leading-8 text-muted-foreground">KANIRA is a kidswear label from Tiruppur, bringing together thoughtfully curated styles for little wardrobes. Explore our collections for retail or connect with us directly for wholesale enquiries.</p>
+                <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 border-b border-primary/50 pb-2 text-sm font-medium transition hover:border-primary">Talk to our team <span aria-hidden>↗</span></a>
+              </div>
+            </div>
+          </section>
         </main>
-        <footer className="border-t py-10 text-center text-sm text-muted-foreground">
-          KANIRA kidswear · Prototype · Wholesale enquiries: +91 99441 77755
+        <footer className="bg-foreground text-background">
+          <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 sm:px-8 md:grid-cols-[1fr_auto] md:items-end">
+            <div><p className="font-display text-3xl tracking-[0.18em]">KANIRA</p><p className="mt-3 text-sm text-background/65">Curated with love. Tiny Outfits. Big Stories.</p></div>
+            <div className="space-y-2 text-sm md:text-right"><a href="#collections" className="block text-background/80 hover:text-background">Explore collections</a><a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="block text-background/80 hover:text-background">Wholesale enquiries · +91 99441 77755</a></div>
+          </div>
+          <div className="border-t border-background/15 px-6 py-4 text-center text-[10px] tracking-wider text-background/55">© KANIRA. All rights reserved.</div>
         </footer>
       </div>
     </MotionConfig>
