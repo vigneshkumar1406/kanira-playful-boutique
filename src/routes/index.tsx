@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "motion/react";
 import { Heart, Flower2, MessageCircle, Store, Package, Sparkles, X } from "lucide-react";
 import {
@@ -204,10 +204,10 @@ function Collections({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void
       </motion.div>
       <div role="tablist" className="mb-10 flex flex-wrap gap-2">
         {CATEGORIES.map((c) => (
-          <button key={c.id} role="tab" aria-selected={tab === c.id} onClick={() => setTab(c.id)} className="relative rounded-full px-5 py-2.5 text-sm font-medium">
+          <motion.button key={c.id} role="tab" aria-selected={tab === c.id} onClick={() => setTab(c.id)} whileTap={{ scale: 0.96 }} whileHover={{ y: -2 }} className="relative rounded-full px-5 py-2.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
             {tab === c.id && <motion.span layoutId="tab" className="absolute inset-0 rounded-full bg-primary" transition={{ type: "spring", bounce: 0.25 }} />}
             <span className={`relative ${tab === c.id ? "text-primary-foreground" : ""}`}>{c.label}</span>
-          </button>
+          </motion.button>
         ))}
       </div>
       <p className="mb-6 text-sm text-muted-foreground">
@@ -304,25 +304,51 @@ function AnimationDemo() {
 
 function Index() {
   const [mode, setMode] = useState<Mode>("retail");
+  const [scrolled, setScrolled] = useState(false);
+  const reduce = useReducedMotion();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen font-sans">
-        <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+        <a href="#main-content" className="skip-link">Skip to content</a>
+        <motion.header
+          className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl"
+          animate={{ boxShadow: scrolled ? "0 10px 30px -24px rgba(75, 48, 35, 0.55)" : "0 0 0 rgba(75, 48, 35, 0)" }}
+          transition={{ duration: reduce ? 0 : 0.28, ease }}
+        >
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <span className="font-display text-2xl tracking-[0.2em]">KANIRA</span>
-            <nav className="hidden gap-6 text-sm md:flex">
-              <a href="#collections" className="hover:text-accent-foreground">Collections</a>
-              <a href="#buy" className="hover:text-accent-foreground">Retail & Wholesale</a>
-            </nav>
-            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-4 py-2 text-xs font-medium text-whatsapp-foreground">
-              <MessageCircle size={14} /> Wholesale
+            <a href="#" aria-label="KANIRA home" className="group rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+              <motion.span whileHover={reduce ? undefined : { letterSpacing: "0.26em" }} transition={{ duration: 0.25 }} className="inline-block font-display text-2xl tracking-[0.2em]">KANIRA</motion.span>
             </a>
+            <nav aria-label="Main navigation" className="hidden gap-7 text-sm md:flex">
+              {[
+                { href: "#collections", label: "Collections" },
+                { href: "#buy", label: "Retail & Wholesale" },
+              ].map((item) => (
+                <a key={item.href} href={item.href} className="nav-link group relative py-2 text-foreground/80 transition-colors hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+                  {item.label}
+                  <motion.span aria-hidden="true" className="absolute inset-x-0 -bottom-0.5 h-px origin-left bg-accent-foreground" initial={{ scaleX: 0 }} whileHover={{ scaleX: 1 }} transition={{ duration: 0.25 }} />
+                </a>
+              ))}
+            </nav>
+            <motion.a whileHover={reduce ? undefined : { y: -2 }} whileTap={reduce ? undefined : { scale: 0.97 }} href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-4 py-2 text-xs font-medium text-whatsapp-foreground shadow-sm transition-shadow hover:shadow-soft focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+              <MessageCircle size={14} /> Wholesale
+            </motion.a>
           </div>
-        </header>
-        <Hero />
-        <Collections mode={mode} setMode={setMode} />
-        <BuySplit setMode={setMode} />
-        <AnimationDemo />
+        </motion.header>
+        <main id="main-content">
+          <Hero />
+          <Collections mode={mode} setMode={setMode} />
+          <BuySplit setMode={setMode} />
+          <AnimationDemo />
+        </main>
         <footer className="border-t py-10 text-center text-sm text-muted-foreground">
           KANIRA kidswear · Prototype · Wholesale enquiries: +91 99441 77755
         </footer>
