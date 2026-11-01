@@ -350,3 +350,21 @@ for each row execute function public.handle_new_user();
 -- Bootstrap the first admin manually after signing up:
 -- update public.profiles set role = 'admin' where id = '<AUTH_USER_UUID>';
 -- Never expose the service_role key in browser code.
+
+
+-- Initial navigation categories; these are catalogue groupings, not product imports.
+insert into public.categories (slug, name, sort_order, is_active)
+values
+  ('girls', 'Girls', 10, true),
+  ('boys', 'Boys', 20, true),
+  ('lollipop', 'Lollipop', 30, true),
+  ('limited-edition', 'Limited Edition', 40, true)
+on conflict (slug) do update
+set name = excluded.name, sort_order = excluded.sort_order, is_active = excluded.is_active;
+
+insert into public.store_settings (key, value, is_public)
+values
+  ('store_name', '"KANIRA"'::jsonb, true),
+  ('currency', '"INR"'::jsonb, true),
+  ('whatsapp_number', '"919944177755"'::jsonb, true)
+on conflict (key) do nothing;
