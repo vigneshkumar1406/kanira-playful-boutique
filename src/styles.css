@@ -158,3 +158,105 @@ html {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* KANIRA luxury atmosphere — CSS-only, inspired by 21st.dev's Aurora gradients.
+   No canvas/WebGL loop or additional runtime dependency. */
+:root {
+  --kanira-cream: oklch(0.975 0.015 75);
+  --kanira-blush: oklch(0.91 0.055 35);
+  --kanira-peach: oklch(0.91 0.065 55);
+  --kanira-sage: oklch(0.93 0.035 135);
+  --kanira-glow: oklch(0.94 0.045 80);
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse at 8% 14%, color-mix(in oklab, var(--kanira-blush) 38%, transparent), transparent 34rem),
+    radial-gradient(ellipse at 92% 48%, color-mix(in oklab, var(--kanira-sage) 24%, transparent), transparent 38rem),
+    linear-gradient(180deg, var(--kanira-cream), var(--background) 42%, var(--kanira-cream));
+  background-attachment: fixed;
+}
+
+.luxury-hero {
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 14% 16%, color-mix(in oklab, var(--kanira-peach) 68%, transparent), transparent 52%),
+    radial-gradient(ellipse at 88% 72%, color-mix(in oklab, var(--kanira-sage) 45%, transparent), transparent 48%),
+    radial-gradient(ellipse at 55% 100%, color-mix(in oklab, var(--kanira-blush) 30%, transparent), transparent 48%),
+    var(--background);
+}
+
+.luxury-hero::before,
+.luxury-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(58px);
+  opacity: 0.52;
+  transform: translate3d(0, 0, 0);
+}
+
+.luxury-hero::before {
+  width: min(54vw, 34rem);
+  height: min(54vw, 34rem);
+  top: -30%;
+  left: -12%;
+  background: color-mix(in oklab, var(--kanira-blush) 72%, transparent);
+  animation: kanira-aurora-drift 19s ease-in-out infinite alternate;
+}
+
+.luxury-hero::after {
+  width: min(48vw, 30rem);
+  height: min(48vw, 30rem);
+  right: -14%;
+  bottom: -32%;
+  background: color-mix(in oklab, var(--kanira-sage) 68%, transparent);
+  animation: kanira-aurora-drift 24s ease-in-out infinite alternate-reverse;
+}
+
+.luxury-card,
+.luxury-panel {
+  box-shadow:
+    0 1px 0 color-mix(in oklab, white 78%, transparent) inset,
+    0 16px 44px -34px color-mix(in oklab, var(--primary) 48%, transparent);
+}
+
+.luxury-card {
+  transition:
+    border-color 280ms ease,
+    box-shadow 350ms ease,
+    background-color 350ms ease;
+}
+
+.luxury-card:hover {
+  border-color: color-mix(in oklab, var(--accent) 58%, var(--border));
+  box-shadow:
+    0 1px 0 color-mix(in oklab, white 82%, transparent) inset,
+    0 24px 52px -34px color-mix(in oklab, var(--primary) 58%, transparent);
+}
+
+.luxury-panel {
+  background:
+    linear-gradient(145deg, color-mix(in oklab, white 44%, var(--card)), var(--card) 62%);
+}
+
+@keyframes kanira-aurora-drift {
+  from { transform: translate3d(-2%, 0, 0) scale(0.96); }
+  to { transform: translate3d(5%, 4%, 0) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luxury-hero::before,
+  .luxury-hero::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  body { background-attachment: scroll; }
+  .luxury-hero::before,
+  .luxury-hero::after { filter: blur(42px); opacity: 0.38; }
+}
