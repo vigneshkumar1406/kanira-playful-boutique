@@ -169,7 +169,7 @@ function Hero() {
             <a href="#buy" className="rounded-full border border-primary px-6 py-3 text-sm font-medium transition hover:bg-primary hover:text-primary-foreground">Retail or wholesale?</a>
           </motion.div>
         </div>
-        <div className="relative h-[420px]">
+        <div className="relative h-[480px]">
           {heroItems.map((p, i) => (
             <motion.div
               key={p.id}
