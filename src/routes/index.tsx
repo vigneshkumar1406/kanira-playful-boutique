@@ -96,7 +96,7 @@ function ProductCard({ product, mode, index, onOpen }: { product: Product; mode:
       transition={{ duration: 0.6, delay: (index % 4) * 0.08, ease }}
       whileHover={{ y: -6 }}
       whileTap={{ scale: 0.97 }}
-      className="group overflow-hidden rounded-3xl border bg-card text-left shadow-soft focus-visible:outline-2 focus-visible:outline-ring"
+      className="luxury-card group overflow-hidden rounded-3xl border bg-card text-left shadow-soft focus-visible:outline-2 focus-visible:outline-ring"
     >
       <div className="overflow-hidden">
         <Swatch product={product} className="aspect-[4/5] transition-transform duration-700 group-hover:scale-105" />
@@ -151,7 +151,7 @@ function DetailSheet({ product, mode, onClose }: { product: Product; mode: Mode;
 function Hero() {
   const heroItems = [PRODUCTS[0]!, PRODUCTS[9]!, PRODUCTS[16]!];
   return (
-    <section className="relative overflow-hidden bg-hero">
+    <section className="luxury-hero relative isolate overflow-hidden bg-hero">
       <Floaters />
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 md:grid-cols-2 md:pt-16">
         <div>
@@ -245,7 +245,7 @@ function BuySplit({ setMode }: { setMode: (m: Mode) => void }) {
     <section id="buy" className="bg-muted/60 py-20">
       <div className="mx-auto grid max-w-6xl gap-6 px-6 md:grid-cols-2">
         {cards.map((c, i) => (
-          <motion.div key={c.title} initial={{ opacity: 0, x: i ? 40 : -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease }} className="rounded-3xl border bg-card p-8 shadow-soft">
+          <motion.div key={c.title} initial={{ opacity: 0, x: i ? 40 : -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease }} className="luxury-panel rounded-3xl border bg-card p-8 shadow-soft">
             <c.Icon className="mb-4 text-accent-foreground" />
             <h3 className="font-display text-3xl">{c.title}</h3>
             <p className="mt-3 text-muted-foreground">{c.body}</p>
