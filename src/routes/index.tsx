@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "motion/react";
-import { Heart, Flower2, MessageCircle, Store, Package, Sparkles, X } from "lucide-react";
+import { Heart, Flower2, MessageCircle, Store, Package, X } from "lucide-react";
 import {
   CATEGORIES,
   PRODUCTS,
@@ -264,44 +264,6 @@ function BuySplit({ setMode }: { setMode: (m: Mode) => void }) {
   );
 }
 
-function AnimationDemo() {
-  const [key, setKey] = useState(0);
-  const reduce = useReducedMotion();
-  const demos = [
-    { label: "Float", anim: reduce ? {} : { y: [0, -14, 0] }, Icon: Heart },
-    { label: "Bloom", anim: reduce ? {} : { scale: [1, 1.25, 1], rotate: [0, 45, 0] }, Icon: Flower2 },
-    { label: "Sparkle", anim: reduce ? {} : { opacity: [1, 0.3, 1], scale: [1, 0.8, 1] }, Icon: Sparkles },
-  ];
-  return (
-    <section className="mx-auto max-w-6xl px-6 py-20">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Motion kit</p>
-          <h2 className="font-display text-4xl">Animation demo</h2>
-        </div>
-        <button onClick={() => setKey((k) => k + 1)} className="rounded-full border border-primary px-5 py-2 text-sm font-medium hover:bg-primary hover:text-primary-foreground">Replay reveal</button>
-      </div>
-      <div className="grid gap-6 md:grid-cols-4">
-        {demos.map(({ label, anim, Icon }) => (
-          <div key={label} className="flex aspect-square flex-col items-center justify-center gap-4 rounded-3xl border bg-card">
-            <motion.div animate={anim} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }} className="text-accent">
-              <Icon size={48} fill="currentColor" strokeWidth={1} />
-            </motion.div>
-            <span className="text-sm text-muted-foreground">{label}</span>
-          </div>
-        ))}
-        <div className="flex aspect-square flex-col items-center justify-center gap-4 rounded-3xl border bg-card p-6">
-          <motion.div key={key} initial={{ clipPath: "inset(100% 0 0 0)" }} animate={{ clipPath: "inset(0% 0 0 0)" }} transition={{ duration: 1, ease }} className="w-2/3">
-            <Swatch product={PRODUCTS[10]!} className="aspect-[3/4] rounded-2xl" />
-          </motion.div>
-          <span className="text-sm text-muted-foreground">Image reveal</span>
-        </div>
-      </div>
-      {reduce && <p className="mt-4 text-sm text-muted-foreground">Reduced motion is on, so looping animations are paused.</p>}
-    </section>
-  );
-}
-
 function Index() {
   const [mode, setMode] = useState<Mode>("retail");
   const [scrolled, setScrolled] = useState(false);
@@ -347,7 +309,6 @@ function Index() {
           <Hero />
           <Collections mode={mode} setMode={setMode} />
           <BuySplit setMode={setMode} />
-          <AnimationDemo />
         </main>
         <footer className="border-t py-10 text-center text-sm text-muted-foreground">
           KANIRA kidswear · Prototype · Wholesale enquiries: +91 99441 77755
