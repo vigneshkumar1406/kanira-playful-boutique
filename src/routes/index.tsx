@@ -293,7 +293,7 @@ function Index() {
             <a href="#" aria-label="KANIRA home" className="group rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
               <motion.span whileHover={reduce ? undefined : { letterSpacing: "0.26em" }} transition={{ duration: 0.25 }} className="inline-block font-display text-2xl tracking-[0.2em]">KANIRA</motion.span>
             </a>
-            <nav aria-label="Main navigation" className="flex gap-3 text-[11px] sm:gap-5 sm:text-xs md:gap-7 md:text-sm">
+            <nav aria-label="Main navigation" className="hidden gap-5 text-xs sm:flex md:gap-7 md:text-sm">
               {[
                 { href: "#collections", label: "Collections" },
                 { href: "#buy", label: "Retail & Wholesale" },
