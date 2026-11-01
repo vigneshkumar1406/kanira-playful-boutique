@@ -260,3 +260,21 @@ body {
   .luxury-hero::before,
   .luxury-hero::after { filter: blur(42px); opacity: 0.38; }
 }
+
+
+/* Editorial storefront refinements */
+.luxury-editorial { isolation: isolate; }
+.luxury-editorial::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 8% -5% 3% 5%;
+  border-radius: 48% 48% 2rem 2rem;
+  background:
+    radial-gradient(ellipse at 35% 25%, color-mix(in oklab, var(--kanira-blush) 62%, transparent), transparent 60%),
+    radial-gradient(ellipse at 78% 72%, color-mix(in oklab, var(--kanira-sage) 55%, transparent), transparent 62%);
+  filter: blur(16px);
+}
+@media (max-width: 640px) {
+  .luxury-editorial { max-width: 28rem; }
+}
