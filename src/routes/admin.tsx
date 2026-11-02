@@ -10,8 +10,8 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefine
 const BUCKET = "product-images";
 type ProductRow = { id: string; name: string; slug: string; description: string | null; fabric: string | null; is_published: boolean; category_id: string | null; product_prices?: { channel: string; price_paise: number; is_active: boolean }[]; product_images?: { id: string; storage_path: string; alt_text: string | null; is_primary: boolean; sort_order: number }[] };
 type Category = { id: string; slug: string; name: string };
-type Draft = { id?: string; name: string; slug: string; category_id: string; description: string; fabric: string; retail: string; wholesale: string; published: boolean };
-const emptyDraft: Draft = { name: "", slug: "", category_id: "", description: "", fabric: "", retail: "", wholesale: "", published: false };
+type Draft = { id?: string; name: string; slug: string; category_id: string; description: string; fabric: string; retail: string; wholesale: string; published: boolean; sku: string; sizes: string; stock: string };
+const emptyDraft: Draft = { name: "", slug: "", category_id: "", description: "", fabric: "", retail: "", wholesale: "", published: false, sku: "", sizes: "", stock: "0" };
 
 function AdminPage() {
   const [email, setEmail] = useState("");
@@ -72,7 +72,7 @@ function AdminPage() {
   }
   function editProduct(p: ProductRow) {
     const price = (channel: string) => p.product_prices?.find(x => x.channel === channel && x.is_active)?.price_paise;
-    setDraft({ id: p.id, name: p.name, slug: p.slug, category_id: p.category_id || "", description: p.description || "", fabric: p.fabric || "", retail: price("retail") ? String(price("retail")! / 100) : "", wholesale: price("wholesale") ? String(price("wholesale")! / 100) : "", published: p.is_published });
+    setDraft({ id: p.id, name: p.name, slug: p.slug, category_id: p.category_id || "", description: p.description || "", fabric: p.fabric || "", retail: price("retail") ? String(price("retail")! / 100) : "", wholesale: price("wholesale") ? String(price("wholesale")! / 100) : "", published: p.is_published, sku: "", sizes: "", stock: "0" });
     setFiles([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -85,7 +85,7 @@ function AdminPage() {
       const saved = await api(draft.id ? `products?id=eq.${draft.id}` : "products", { method: draft.id ? "PATCH" : "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
       const productId = draft.id || saved?.[0]?.id;
       if (!productId) throw new Error("Product saved, but its ID was not returned.");
-      for (const channel of ["retail", "wholesale"] as const) {
+      if (!draft.id && (!draft.sku.trim() || !draft.sizes.trim())) throw new Error("Add at least one SKU and size before creating a product.");\n      if (!draft.id) {\n        const sizeList = draft.sizes.split(",").map(s => s.trim()).filter(Boolean);\n        await api("product_variants", { method: "POST", body: JSON.stringify(sizeList.map((size, index) => ({ product_id: productId, sku: sizeList.length === 1 ? draft.sku.trim() : `${draft.sku.trim()}-${size.replace(/[^a-z0-9]/gi, "").toUpperCase()}`, size_label: size, stock_quantity: Math.max(0, Number(draft.stock) || 0), sort_order: index, is_active: true })) ) });\n      }\n      for (const channel of ["retail", "wholesale"] as const) {
         const value = channel === "retail" ? draft.retail : draft.wholesale;
         if (!value.trim()) continue;
         const amount = Math.round(Number(value) * 100);
@@ -148,7 +148,7 @@ function AdminPage() {
           <label className="text-sm">Product name<input required className="mt-1 w-full rounded-xl border p-3" value={draft.name} onChange={e=>setDraft({...draft,name:e.target.value,slug:draft.id?draft.slug:e.target.value.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")})}/></label>
           <label className="text-sm">URL slug<input required className="mt-1 w-full rounded-xl border p-3" value={draft.slug} onChange={e=>setDraft({...draft,slug:e.target.value})}/></label>
           <label className="text-sm">Collection<select required className="mt-1 w-full rounded-xl border p-3" value={draft.category_id} onChange={e=>setDraft({...draft,category_id:e.target.value})}><option value="">Choose collection</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-          <label className="text-sm">Fabric<input className="mt-1 w-full rounded-xl border p-3" value={draft.fabric} onChange={e=>setDraft({...draft,fabric:e.target.value})} placeholder="Only if verified"/></label>
+          <label className="text-sm">Fabric<input className="mt-1 w-full rounded-xl border p-3" value={draft.fabric} onChange={e=>setDraft({...draft,fabric:e.target.value})} placeholder="Only if verified"/></label>\n          {!draft.id && <><label className="text-sm">Base SKU<input required className="mt-1 w-full rounded-xl border p-3" value={draft.sku} onChange={e=>setDraft({...draft,sku:e.target.value})} placeholder="e.g. KNR-FRK-010"/></label><label className="text-sm">Sizes (comma separated)<input required className="mt-1 w-full rounded-xl border p-3" value={draft.sizes} onChange={e=>setDraft({...draft,sizes:e.target.value})} placeholder="e.g. 1Y, 2Y, 3Y"/></label><label className="text-sm">Opening stock per size<input type="number" min="0" className="mt-1 w-full rounded-xl border p-3" value={draft.stock} onChange={e=>setDraft({...draft,stock:e.target.value})}/></label></>}
           <label className="text-sm">Retail price (₹)<input type="number" min="0" step="0.01" className="mt-1 w-full rounded-xl border p-3" value={draft.retail} onChange={e=>setDraft({...draft,retail:e.target.value})} placeholder="Leave blank if not confirmed"/></label>
           <label className="text-sm">Wholesale price (₹)<input type="number" min="0" step="0.01" className="mt-1 w-full rounded-xl border p-3" value={draft.wholesale} onChange={e=>setDraft({...draft,wholesale:e.target.value})} placeholder="Leave blank if not confirmed"/></label>
           <label className="text-sm md:col-span-2">Description<textarea rows={3} className="mt-1 w-full rounded-xl border p-3" value={draft.description} onChange={e=>setDraft({...draft,description:e.target.value})}/></label>
