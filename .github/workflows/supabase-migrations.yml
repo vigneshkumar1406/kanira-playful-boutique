@@ -37,6 +37,7 @@ jobs:
           supabase init
 
           # Use the exact migration files from this pull request.
+          mkdir -p supabase/migrations
           cp "$GITHUB_WORKSPACE"/supabase/migrations/*.sql supabase/migrations/
 
           # Local Docker containers only; no Supabase cloud credentials are provided.
