@@ -55,8 +55,11 @@ create table if not exists public.localized_product_prices (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint localized_product_price_window check (effective_until is null or effective_until > effective_from),
-  constraint localized_product_price_unique unique (product_id, channel, currency_code)
 );
+
+create unique index if not exists localized_product_price_active_unique
+  on public.localized_product_prices(product_id, channel, currency_code)
+  where is_active = true;
 
 -- Addresses use the existing pincode field as a destination postal/ZIP code.
 -- Indian PIN validation applies only to India; other countries are not forced into 6 digits.
@@ -69,6 +72,8 @@ alter table public.addresses
 alter table public.addresses
   add constraint addresses_indian_pincode_format
   check (country_code <> 'IN' or pincode is null or pincode ~ '^[1-9][0-9]{5}$');
+comment on column public.product_prices.price_paise is
+  'Canonical INR catalogue amount in paise. Fixed local-market prices are stored in localized_product_prices.';
 comment on column public.addresses.pincode is
   'Destination postal/ZIP code. Country-specific validation applies; India uses a six-digit PIN.';
 
@@ -146,6 +151,19 @@ create index if not exists exchange_rates_expiry_idx
 create index if not exists localized_product_prices_lookup_idx
   on public.localized_product_prices(product_id, channel, currency_code, is_active);
 
+
+drop trigger if exists currencies_set_updated_at on public.currencies;
+create trigger currencies_set_updated_at before update on public.currencies
+for each row execute function public.set_updated_at();
+
+drop trigger if exists exchange_rates_set_updated_at on public.exchange_rates;
+create trigger exchange_rates_set_updated_at before update on public.exchange_rates
+for each row execute function public.set_updated_at();
+
+drop trigger if exists localized_product_prices_set_updated_at on public.localized_product_prices;
+create trigger localized_product_prices_set_updated_at before update on public.localized_product_prices
+for each row execute function public.set_updated_at();
+
 alter table public.currencies enable row level security;
 alter table public.exchange_rates enable row level security;
 alter table public.localized_product_prices enable row level security;
@@ -177,13 +195,13 @@ with check (
   user_id = auth.uid()
   and exists (
     select 1 from public.orders o
-    where o.id = order_id and o.user_id = auth.uid()
+    where o.id = public.return_requests.order_id and o.user_id = auth.uid()
   )
   and (
     order_item_id is null
     or exists (
       select 1 from public.order_items oi
-      where oi.id = order_item_id and oi.order_id = order_id
+      where oi.id = public.return_requests.order_item_id and oi.order_id = public.return_requests.order_id
     )
   )
 );
@@ -199,7 +217,7 @@ with check (
     select 1
     from public.orders o
     join public.order_items oi on oi.order_id = o.id
-    where o.id = order_id
+    where o.id = public.product_reviews.order_id
       and o.user_id = auth.uid()
       and oi.product_id = public.product_reviews.product_id
   )
@@ -256,5 +274,16 @@ grant usage on schema public to anon, authenticated;
 grant select on public.currencies, public.exchange_rates to anon, authenticated;
 grant select on public.localized_product_prices to anon, authenticated;
 grant insert, update, delete on public.currencies, public.exchange_rates, public.localized_product_prices to authenticated;
+
+-- The server-side PostgREST helper uses the service_role key. Grant its required
+-- object privileges explicitly because newer Supabase defaults may not auto-grant them.
+grant select, insert, update, delete on
+  public.profiles, public.addresses, public.categories, public.products,
+  public.product_prices, public.product_variants, public.product_images,
+  public.orders, public.order_items, public.payment_transactions,
+  public.inventory_movements, public.return_requests, public.product_reviews,
+  public.store_settings, public.currencies, public.exchange_rates,
+  public.localized_product_prices
+to service_role;
 
 commit;
