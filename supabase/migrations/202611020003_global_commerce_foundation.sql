@@ -201,7 +201,7 @@ with check (
     join public.order_items oi on oi.order_id = o.id
     where o.id = order_id
       and o.user_id = auth.uid()
-      and oi.product_id = product_id
+      and oi.product_id = public.product_reviews.product_id
   )
 );
 
