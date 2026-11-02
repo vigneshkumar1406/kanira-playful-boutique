@@ -36,10 +36,9 @@ export function useCurrencyDisplay(): CurrencyState {
     const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, "");
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-    if (typeof window !== "undefined") {
-      const saved = window.localStorage.getItem("kanira.displayCurrency");
-      if (saved) setCurrencyState(saved);
-    }
+    const saved = typeof window !== "undefined"
+      ? window.localStorage.getItem("kanira.displayCurrency")
+      : null;
 
     if (!url || !key) return () => { active = false; };
 
@@ -69,7 +68,10 @@ export function useCurrencyDisplay(): CurrencyState {
         if (!active) return;
         setRates(nextRates);
         setOptions(available);
-        setCurrencyState(current => available.some(item => item.code === current) ? current : "INR");
+        setCurrencyState(current => {
+          const preferred = saved ?? current;
+          return available.some(item => item.code === preferred) ? preferred : "INR";
+        });
       })
       .catch(() => {
         if (active) {
