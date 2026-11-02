@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MessageCircle, ShieldCheck, Heart, Sparkles } from "lucide-react";
 import { PRODUCTS, priceFor, swatchFor, whatsappLink } from "@/lib/catalogue";
 import { SiteLayout } from "@/components/site-layout";
+import { CurrencySelector, useCurrencyDisplay } from "@/lib/currency-display";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductPage,
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/product/$productId")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
+  const display = useCurrencyDisplay();
   const retail = priceFor(product, "retail");
   const wholesale = priceFor(product, "wholesale");
   const firstColour = swatchFor(product.skus[0]!);
@@ -38,17 +40,18 @@ function ProductPage() {
           </div>
           <section className="py-2">
             <p className="eyebrow">{product.category} collection · KANIRA</p>
+            <div className="mt-3"><CurrencySelector currency={display.currency} options={display.options} onChange={display.setCurrency}/></div>
             <h1 className="mt-3 font-display text-4xl leading-tight md:text-5xl">{product.name}</h1>
             <p className="mt-4 text-sm leading-7 text-[#74685e]">A considered little style from the KANIRA catalogue. Please confirm current availability, colour and size with our team before ordering.</p>
             <div className="my-7 grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-[#eadfd4] bg-[#fffdf9] p-4">
                 <p className="text-[10px] uppercase tracking-[.16em] text-[#8c7d70]">Retail price</p>
-                <p className="mt-2 text-2xl font-semibold">{retail ? `₹${retail.amount.toLocaleString("en-IN")}` : "Enquire"}</p>
+                <p className="mt-2 text-2xl font-semibold">{retail ? display.formatInrAmount(retail.amount) : "Enquire"}</p>
                 <p className="mt-1 text-xs text-[#8c7d70]">{retail?.label ?? "Retail price not listed"}</p>
               </div>
               <div className="rounded-2xl border border-[#eadfd4] bg-[#fffdf9] p-4">
                 <p className="text-[10px] uppercase tracking-[.16em] text-[#8c7d70]">Wholesale price</p>
-                <p className="mt-2 text-2xl font-semibold">{wholesale ? `₹${wholesale.amount.toLocaleString("en-IN")}` : "Enquire"}</p>
+                <p className="mt-2 text-2xl font-semibold">{wholesale ? display.formatInrAmount(wholesale.amount) : "Enquire"}</p>
                 <p className="mt-1 text-xs text-[#8c7d70]">{wholesale?.label ?? "Wholesale price not listed"}</p>
               </div>
             </div>
@@ -60,7 +63,7 @@ function ProductPage() {
             {product.details && <div className="mt-5"><h2 className="text-sm font-semibold">Product details</h2><ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[#74685e]">{product.details.map(detail => <li key={detail}>{detail}</li>)}</ul></div>}
             <div className="mt-6"><p className="text-[10px] uppercase tracking-[.16em] text-[#8c7d70]">Catalogue SKU</p><p className="mt-1 text-sm">{product.skus.join(" · ")}</p></div>
             <a className="primary-button mt-7 inline-flex w-full md:w-auto" href={whatsappLink(product)} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Enquire on WhatsApp</a>
-            <p className="mt-4 flex items-center gap-2 text-xs leading-5 text-[#8c7d70]"><ShieldCheck size={15} /> Prices and stock are confirmed by KANIRA before order acceptance.</p>
+            <p className="mt-4 flex items-center gap-2 text-xs leading-5 text-[#8c7d70]"><ShieldCheck size={15} /> Converted display prices are indicative; KANIRA confirms the final invoice, shipping, taxes and payment currency before accepting an international order.</p>
           </section>
         </div>
       </main>

@@ -1,0 +1,58 @@
+name: Supabase migration verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - ".github/workflows/supabase-migrations.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-migrations:
+    name: Test migrations on disposable local Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start isolated local Supabase and apply every migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$RUNNER_TEMP/kanira-supabase-ci"
+          mkdir -p "$workdir"
+          cd "$workdir"
+
+          # Initialise a throwaway local CLI project. It is never linked to a hosted project.
+          supabase init
+
+          # Use the exact migration files from this pull request.
+          mkdir -p supabase/migrations
+          cp "$GITHUB_WORKSPACE"/supabase/migrations/*.sql supabase/migrations/
+
+          # Local Docker containers only; no Supabase cloud credentials are provided.
+          supabase start
+          supabase db reset
+
+          # Run Postgres function/schema linting after all migrations have applied.
+          supabase db lint --fail-on error
+
+      - name: Stop local Supabase containers
+        if: always()
+        shell: bash
+        run: |
+          workdir="$RUNNER_TEMP/kanira-supabase-ci"
+          if [ -f "$workdir/supabase/config.toml" ]; then
+            cd "$workdir"
+            supabase stop --no-backup || true
+          fi
