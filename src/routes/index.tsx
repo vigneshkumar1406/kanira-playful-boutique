@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { ArrowRight, Heart, Menu, MessageCircle, Search, ShoppingBag, X, Leaf, Truck, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Heart, Menu, MessageCircle, Search, ShoppingBag, UserRound, X, Leaf, Truck, ShieldCheck, Sparkles } from "lucide-react";
 import { CATEGORIES, PRODUCTS, priceFor, swatchFor, whatsappLink, type Category, type Mode, type Product } from "@/lib/catalogue";
 
 export const Route = createFileRoute("/")({
@@ -68,7 +68,7 @@ function HomePage() {
         <button className="rounded-full p-2 md:hidden" aria-label="Open menu" onClick={() => setMobileOpen(!mobileOpen)}>{mobileOpen ? <X/> : <Menu/>}</button>
         <Logo/>
         <nav className="hidden items-center gap-8 text-sm md:flex"><a href="/shop">Shop</a><a href="#collections">Collections</a><a href="/about">Our story</a><a href="/wholesale">Wholesale</a><a href="/help">Help</a></nav>
-        <div className="flex items-center gap-1"><button aria-label="Search products" onClick={() => setSearchOpen(!searchOpen)} className="header-icon"><Search size={19}/></button><a href="#collections" aria-label="Browse collections" className="header-icon"><Heart size={19}/></a><a href="/wholesale" aria-label="Wholesale enquiries" className="header-icon"><ShoppingBag size={19}/></a></div>
+        <div className="header-actions flex items-center gap-2"><a href="/account" aria-label="My account" title="My account" className="header-icon"><UserRound size={20} strokeWidth={1.7}/></a><a href="/cart" aria-label="Shopping bag" title="Shopping bag" className="header-icon"><ShoppingBag size={20} strokeWidth={1.7}/></a><a href="https://wa.me/919944177755" target="_blank" rel="noreferrer" aria-label="Chat with KANIRA on WhatsApp" title="Chat with KANIRA" className="header-icon header-whatsapp"><MessageCircle size={20} strokeWidth={1.7}/></a></div>
       </div>
       <AnimatePresence>{mobileOpen && <motion.nav initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mobile-nav md:hidden"><a href="/shop" onClick={() => setMobileOpen(false)}>Shop</a><a href="#collections" onClick={() => setMobileOpen(false)}>Collections</a><a href="/about" onClick={() => setMobileOpen(false)}>Our story</a><a href="/wholesale" onClick={() => setMobileOpen(false)}>Wholesale</a><a href="/help" onClick={() => setMobileOpen(false)}>Help</a></motion.nav>}</AnimatePresence>
       <AnimatePresence>{searchOpen && <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-[#eee4d9] px-5 py-3"><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search product name, SKU or size…" className="search-input mx-auto block max-w-3xl"/></motion.div>}</AnimatePresence>
