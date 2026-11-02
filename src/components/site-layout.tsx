@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Leaf, MessageCircle } from "lucide-react";
+import { Leaf, MessageCircle, ShoppingBag, UserRound } from "lucide-react";
 
 const whatsapp = "https://wa.me/919944177755";
 
@@ -25,10 +25,10 @@ export function SiteLayout({ children, active }: { children: ReactNode; active?:
           <nav className="hidden items-center gap-7 text-sm md:flex">
             {links.map(link => <a key={link.key} href={link.href} className={active === link.key ? "font-semibold text-[#805037]" : ""}>{link.label}</a>)}
           </nav>
-          <div className="flex items-center gap-3">
-            <a href="/account" className="text-xs">Account</a>
-            <a href="/cart" className="text-xs">Bag</a>
-            <a href={whatsapp} target="_blank" rel="noreferrer" className="primary-button !mt-0 !px-4 !py-2 text-xs"><MessageCircle size={15} /> Talk to us</a>
+          <div className="header-actions flex items-center gap-2">
+            <a href="/account" className="header-icon" aria-label="My account" title="My account"><UserRound size={21} strokeWidth={1.7} /></a>
+            <a href="/cart" className="header-icon" aria-label="Shopping bag" title="Shopping bag"><ShoppingBag size={21} strokeWidth={1.7} /></a>
+            <a href={whatsapp} target="_blank" rel="noreferrer" className="header-icon header-whatsapp" aria-label="Chat with KANIRA on WhatsApp" title="Chat with KANIRA"><MessageCircle size={21} strokeWidth={1.7} /></a>
           </div>
         </div>
       </header>
