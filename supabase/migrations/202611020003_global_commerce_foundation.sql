@@ -54,7 +54,7 @@ create table if not exists public.localized_product_prices (
   effective_until timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint localized_product_price_window check (effective_until is null or effective_until > effective_from),
+  constraint localized_product_price_window check (effective_until is null or effective_until > effective_from)
 );
 
 create unique index if not exists localized_product_price_active_unique
