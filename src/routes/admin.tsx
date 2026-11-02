@@ -77,33 +77,160 @@ function AdminPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   async function saveProduct(e: React.FormEvent) {
-    e.preventDefault(); setBusy(true); setError(""); setNotice("");
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    setNotice("");
+
+    let createdProductId: string | undefined;
+    const uploadedPaths: string[] = [];
+    const isNewProduct = !draft.id;
+
     try {
+      if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error("Supabase is not configured.");
       if (!draft.category_id) throw new Error("Choose a collection/category.");
-      const payload = { name: draft.name.trim(), slug: draft.slug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, ""), category_id: draft.category_id, description: draft.description || null, fabric: draft.fabric || null, is_published: draft.published };
+
+      const slug = draft.slug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, "");
+      const payload = {
+        name: draft.name.trim(),
+        slug,
+        category_id: draft.category_id,
+        description: draft.description.trim() || null,
+        fabric: draft.fabric.trim() || null,
+        is_published: draft.published,
+      };
       if (!payload.name || !payload.slug) throw new Error("Product name and URL slug are required.");
-      const saved = await api(draft.id ? `products?id=eq.${draft.id}` : "products", { method: draft.id ? "PATCH" : "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
+
+      // Validate every field before inserting a product so a bad form cannot leave an orphan row.
+      const sizeList = draft.sizes.split(",").map(size => size.trim()).filter(Boolean);
+      let stockPerSize = 0;
+      if (isNewProduct) {
+        if (!draft.sku.trim()) throw new Error("Enter a base SKU.");
+        if (sizeList.length === 0) throw new Error("Enter at least one size.");
+        if (new Set(sizeList.map(size => size.toLowerCase())).size !== sizeList.length) throw new Error("Remove duplicate sizes.");
+        stockPerSize = Number(draft.stock);
+        if (!Number.isInteger(stockPerSize) || stockPerSize < 0) throw new Error("Opening stock must be a whole number of zero or more.");
+      }
+
+      const priceEntries = (["retail", "wholesale"] as const).map(channel => {
+        const raw = channel === "retail" ? draft.retail.trim() : draft.wholesale.trim();
+        if (!raw) return { channel, amount: null as number | null };
+        const amount = Math.round(Number(raw) * 100);
+        if (!Number.isFinite(amount) || amount <= 0) throw new Error("Enter a valid positive " + channel + " price.");
+        return { channel, amount };
+      });
+
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      for (const file of files) {
+        if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
+          throw new Error("Choose JPG, PNG or WebP images under 5 MB each.");
+        }
+      }
+
+      const saved = await api(draft.id ? "products?id=eq." + draft.id : "products", {
+        method: draft.id ? "PATCH" : "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify(payload),
+      });
       const productId = draft.id || saved?.[0]?.id;
       if (!productId) throw new Error("Product saved, but its ID was not returned.");
-      if (!draft.id && (!draft.sku.trim() || !draft.sizes.trim())) throw new Error("Add at least one SKU and size before creating a product.");\n      if (!draft.id) {\n        const sizeList = draft.sizes.split(",").map(s => s.trim()).filter(Boolean);\n        await api("product_variants", { method: "POST", body: JSON.stringify(sizeList.map((size, index) => ({ product_id: productId, sku: sizeList.length === 1 ? draft.sku.trim() : `${draft.sku.trim()}-${size.replace(/[^a-z0-9]/gi, "").toUpperCase()}`, size_label: size, stock_quantity: Math.max(0, Number(draft.stock) || 0), is_active: true })) ) });\n      }\n      for (const channel of ["retail", "wholesale"] as const) {
-        const value = channel === "retail" ? draft.retail : draft.wholesale;
-        if (!value.trim()) continue;
-        const amount = Math.round(Number(value) * 100);
-        if (!Number.isFinite(amount) || amount < 0) throw new Error(`Enter a valid ${channel} price.`);
-        await api("product_prices?on_conflict=product_id,channel", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ product_id: productId, channel, price_paise: amount, is_active: true }) });
+      if (isNewProduct) createdProductId = productId;
+
+      if (isNewProduct) {
+        const variants = sizeList.map(size => ({
+          product_id: productId,
+          sku: sizeList.length === 1
+            ? draft.sku.trim()
+            : draft.sku.trim() + "-" + size.replace(/[^a-z0-9]/gi, "").toUpperCase(),
+          size_label: size,
+          stock_quantity: stockPerSize,
+          is_active: true,
+        }));
+        await api("product_variants", { method: "POST", body: JSON.stringify(variants) });
       }
+
+      for (const entry of priceEntries) {
+        if (entry.amount === null) {
+          if (draft.id) {
+            await api("product_prices?product_id=eq." + productId + "&channel=eq." + entry.channel, {
+              method: "PATCH",
+              body: JSON.stringify({ is_active: false }),
+            });
+          }
+          continue;
+        }
+        await api("product_prices?on_conflict=product_id,channel", {
+          method: "POST",
+          headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify({
+            product_id: productId,
+            channel: entry.channel,
+            price_paise: entry.amount,
+            is_active: true,
+          }),
+        });
+      }
+
       for (const file of files) {
-        if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) throw new Error("Choose images under 5 MB each (JPG, PNG or WebP).");
         const safeName = file.name.toLowerCase().replace(/[^a-z0-9.-]+/g, "-");
-        const path = `${productId}/${Date.now()}-${safeName}`;
-        const upload = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, { method: "POST", headers: { apikey: SUPABASE_KEY!, Authorization: `Bearer ${token}`, "Content-Type": file.type, "x-upsert": "false" }, body: file });
+        const path = productId + "/" + Date.now() + "-" + safeName;
+        const upload = await fetch(SUPABASE_URL + "/storage/v1/object/" + BUCKET + "/" + path, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: "Bearer " + token,
+            "Content-Type": file.type,
+            "x-upsert": "false",
+          },
+          body: file,
+        });
         if (!upload.ok) throw new Error(await upload.text());
-        await api("product_images", { method: "POST", body: JSON.stringify({ product_id: productId, storage_path: path, alt_text: draft.name, is_primary: !products.find(p => p.id === productId)?.product_images?.length, sort_order: 0 }) });
+        uploadedPaths.push(path);
+
+        const existingImages = products.find(product => product.id === productId)?.product_images?.length ?? 0;
+        await api("product_images", {
+          method: "POST",
+          body: JSON.stringify({
+            product_id: productId,
+            storage_path: path,
+            alt_text: draft.name.trim(),
+            is_primary: existingImages === 0 && uploadedPaths.length === 1,
+            sort_order: existingImages + uploadedPaths.length - 1,
+          }),
+        });
       }
-      setDraft(emptyDraft); setFiles([]); await loadStore(token); setNotice("Product saved successfully.");
-    } catch (err) { setError(err instanceof Error ? err.message : "Unable to save product."); }
-    finally { setBusy(false); }
+
+      setDraft(emptyDraft);
+      setFiles([]);
+      await loadStore(token);
+      setNotice("Product saved successfully.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to save product.";
+      // Roll back a newly-created product and its uploaded objects if any later step fails.
+      if (createdProductId) {
+        for (const path of uploadedPaths) {
+          try {
+            await fetch(SUPABASE_URL + "/storage/v1/object/" + BUCKET + "/" + path, {
+              method: "DELETE",
+              headers: headers(),
+            });
+          } catch {
+            // Preserve the original error; the orphan can be cleaned up from Storage later.
+          }
+        }
+        try {
+          await api("products?id=eq." + createdProductId, { method: "DELETE" });
+        } catch {
+          setError(message + " Automatic rollback also failed; check this product in the admin list.");
+          return;
+        }
+      }
+      setError(message);
+    } finally {
+      setBusy(false);
+    }
   }
+
   async function deleteProduct(p: ProductRow) {
     if (!window.confirm(`Delete “${p.name}” and its product images? This cannot be undone.`)) return;
     setBusy(true); setError("");
@@ -148,7 +275,8 @@ function AdminPage() {
           <label className="text-sm">Product name<input required className="mt-1 w-full rounded-xl border p-3" value={draft.name} onChange={e=>setDraft({...draft,name:e.target.value,slug:draft.id?draft.slug:e.target.value.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")})}/></label>
           <label className="text-sm">URL slug<input required className="mt-1 w-full rounded-xl border p-3" value={draft.slug} onChange={e=>setDraft({...draft,slug:e.target.value})}/></label>
           <label className="text-sm">Collection<select required className="mt-1 w-full rounded-xl border p-3" value={draft.category_id} onChange={e=>setDraft({...draft,category_id:e.target.value})}><option value="">Choose collection</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-          <label className="text-sm">Fabric<input className="mt-1 w-full rounded-xl border p-3" value={draft.fabric} onChange={e=>setDraft({...draft,fabric:e.target.value})} placeholder="Only if verified"/></label>\n          {!draft.id && <><label className="text-sm">Base SKU<input required className="mt-1 w-full rounded-xl border p-3" value={draft.sku} onChange={e=>setDraft({...draft,sku:e.target.value})} placeholder="e.g. KNR-FRK-010"/></label><label className="text-sm">Sizes (comma separated)<input required className="mt-1 w-full rounded-xl border p-3" value={draft.sizes} onChange={e=>setDraft({...draft,sizes:e.target.value})} placeholder="e.g. 1Y, 2Y, 3Y"/></label><label className="text-sm">Opening stock per size<input type="number" min="0" className="mt-1 w-full rounded-xl border p-3" value={draft.stock} onChange={e=>setDraft({...draft,stock:e.target.value})}/></label></>}
+          <label className="text-sm">Fabric<input className="mt-1 w-full rounded-xl border p-3" value={draft.fabric} onChange={e=>setDraft({...draft,fabric:e.target.value})} placeholder="Only if verified"/></label>
+          {!draft.id && <><label className="text-sm">Base SKU<input required className="mt-1 w-full rounded-xl border p-3" value={draft.sku} onChange={e=>setDraft({...draft,sku:e.target.value})} placeholder="e.g. KNR-FRK-010"/></label><label className="text-sm">Sizes (comma separated)<input required className="mt-1 w-full rounded-xl border p-3" value={draft.sizes} onChange={e=>setDraft({...draft,sizes:e.target.value})} placeholder="e.g. 1Y, 2Y, 3Y"/></label><label className="text-sm">Opening stock per size<input type="number" min="0" className="mt-1 w-full rounded-xl border p-3" value={draft.stock} onChange={e=>setDraft({...draft,stock:e.target.value})}/></label></>}
           <label className="text-sm">Retail price (₹)<input type="number" min="0" step="0.01" className="mt-1 w-full rounded-xl border p-3" value={draft.retail} onChange={e=>setDraft({...draft,retail:e.target.value})} placeholder="Leave blank if not confirmed"/></label>
           <label className="text-sm">Wholesale price (₹)<input type="number" min="0" step="0.01" className="mt-1 w-full rounded-xl border p-3" value={draft.wholesale} onChange={e=>setDraft({...draft,wholesale:e.target.value})} placeholder="Leave blank if not confirmed"/></label>
           <label className="text-sm md:col-span-2">Description<textarea rows={3} className="mt-1 w-full rounded-xl border p-3" value={draft.description} onChange={e=>setDraft({...draft,description:e.target.value})}/></label>
